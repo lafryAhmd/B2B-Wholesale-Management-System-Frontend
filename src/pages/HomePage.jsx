@@ -1,6 +1,4 @@
 import { Link } from 'react-router-dom'
-import Navbar from '../components/Navbar'
-import Footer from '../components/Footer'
 
 const Star = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -103,8 +101,6 @@ export default function HomePage() {
         @media (max-width:1024px) { .hero-inner { grid-template-columns:1fr; } .hero-card-wrap { display:none; } .features-grid,.testimonials-grid { grid-template-columns:1fr; } }
         @media (max-width:768px) { .hero { padding:60px 20px 70px; } .hero-h1 { font-size:2.2rem; } .section,.features-section,.testimonials-section { padding:60px 20px; } .steps-grid { grid-template-columns:1fr; } }
       `}</style>
-
-      <Navbar />
 
       {/* HERO */}
       <section className="hero">
@@ -270,8 +266,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      <Footer />
     </div>
   )
 }

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find 'C:\\\\Users\\\\Yashodha\\\\OneDrive\\\\Desktop\\\\New folder\\\\B2B-Wholesale-Management-System-Frontend' -maxdepth 3 -not -path */node_modules/* -type f)",
+      "Read(//c/tmp/**)",
+      "Bash(unzip -o \"C:\\\\Users\\\\Yashodha\\\\Downloads\\\\b2b-frontend.zip\" -d b2b-frontend-zip)",
+      "Bash(unzip -l \"C:\\\\Users\\\\Yashodha\\\\Downloads\\\\b2b-frontend.zip\")",
+      "Bash(grep -E \"\\\\.jsx$|\\\\.js$|\\\\.css$|\\\\.html$\")",
+      "Bash(unzip -o \"C:\\\\Users\\\\Yashodha\\\\Downloads\\\\b2b-frontend.zip\" \"b2b-frontend/src/*\" -d b2b-frontend-zip)",
+      "Bash(unzip -o \"C:\\\\Users\\\\Yashodha\\\\Downloads\\\\b2b-frontend.zip\" \"b2b-frontend/src/pages/*\" -d b2b-frontend-zip)"
+    ]
+  }
+}

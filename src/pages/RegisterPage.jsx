@@ -17,6 +17,18 @@ export default function RegisterPage() {
   const [mapOpen, setMapOpen] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
+  // Form data state
+  const [formData, setFormData] = useState({
+    email: '',
+    phone: '',
+    businessName: '',
+    businessType: '',
+    registrationNo: '',
+    streetAddress: '',
+    city: '',
+    postcode: ''
+  })
+
   function getStrength(p) {
     if (!p) return 0
     let s = 0
@@ -30,9 +42,47 @@ export default function RegisterPage() {
   const strengthColors = ['#d1dbd1','#ef4444','#f59e0b','#22c55e','#15803d']
   const strengthLabels = ['','Weak','Fair','Good','Strong']
 
-  function handleSubmit() {
-    setSubmitted(true)
-    setTimeout(() => navigate('/dashboard'), 2000)
+  async function handleSubmit() {
+    const payload = {
+      email: formData.email,
+      phone: formData.phone,
+      businessName: formData.businessName,
+      businessType: formData.businessType,
+      registrationNumber: formData.registrationNo,
+      street: formData.streetAddress,
+      city: formData.city,
+      zipCode: formData.postcode,
+      username: formData.email,
+      password: pw
+    }
+
+    try {
+      const res = await fetch('/api/business/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+
+      if (!res.ok) {
+        const err = await res.json()
+        alert(err.error || 'Registration failed')
+        return
+      }
+
+      const saved = await res.json()
+      localStorage.setItem('user', JSON.stringify({
+        id: saved.id,
+        email: saved.email,
+        businessName: saved.businessName,
+        businessType: saved.businessType,
+        role: selectedType === 'company' ? 'SELLER' : 'BUYER',
+        accountType: selectedType
+      }))
+      setSubmitted(true)
+      setTimeout(() => navigate('/dashboard'), 2000)
+    } catch (e) {
+      alert('Could not connect to server. Make sure backend is running.')
+    }
   }
 
   if (submitted) {
@@ -180,8 +230,8 @@ export default function RegisterPage() {
               </div>
               <div className="sdiv">Contact Information</div>
               <div className="fg">
-                <div className="rf"><label>Email Address</label><div className="iw"><span className="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span><input type="email" placeholder="you@company.com"/></div></div>
-                <div className="rf"><label>Phone Number</label><div className="iw"><span className="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-2.97-8.62A2 2 0 0 1 3.74 1.17h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L7.91 9a16 16 0 0 0 6 6l1.06-1.06a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span><input type="tel" placeholder="+1 (555) 000-0000"/></div></div>
+                <div className="rf"><label>Email Address</label><div className="iw"><span className="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span><input type="email" placeholder="you@company.com" value={formData.email} onChange={e=>setFormData({...formData,email:e.target.value})}/></div></div>
+                <div className="rf"><label>Phone Number</label><div className="iw"><span className="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-2.97-8.62A2 2 0 0 1 3.74 1.17h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L7.91 9a16 16 0 0 0 6 6l1.06-1.06a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span><input type="tel" placeholder="+1 (555) 000-0000" value={formData.phone} onChange={e=>setFormData({...formData,phone:e.target.value})}/></div></div>
               </div>
               <div className="fnav"><button type="button" className="bnext" onClick={()=>setStep(2)}>Continue to Business Details →</button></div>
             </div>}
@@ -197,12 +247,12 @@ export default function RegisterPage() {
                 {mapOpen&&<div className="mb"><div className="mpl"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#b8ccb8" strokeWidth="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><p>Map preview</p><small style={{fontSize:'0.72rem',color:'#b8ccb8'}}>Google Maps API required</small></div></div>}
               </div>
               <div className="fg">
-                <div className="rf s2"><label>Business Name</label><div className="iw"><span className="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></span><input type="text" placeholder="Your Company Ltd."/></div></div>
-                <div className="rf"><label>Business Type</label><div className="iw"><span className="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></span><select style={{paddingLeft:37}}><option value="">Select…</option><option>Electronics</option><option>Apparel</option><option>Food &amp; Beverage</option><option>Tools &amp; Hardware</option><option>Other</option></select></div></div>
-                <div className="rf"><label>Registration No. <span className="opt">Optional</span></label><div className="iw"><span className="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><input type="text" placeholder="e.g. 12345678"/></div></div>
-                <div className="rf s2"><label>Street Address</label><div className="iw"><span className="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span><input type="text" placeholder="123 Main Street"/></div></div>
-                <div className="rf"><label>City</label><div className="iw"><input type="text" placeholder="New York" className="ni"/></div></div>
-                <div className="rf"><label>Postcode</label><div className="iw"><input type="text" placeholder="10001" className="ni"/></div></div>
+                <div className="rf s2"><label>Business Name</label><div className="iw"><span className="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></span><input type="text" placeholder="Your Company Ltd." value={formData.businessName} onChange={e=>setFormData({...formData,businessName:e.target.value})}/></div></div>
+                <div className="rf"><label>Business Type</label><div className="iw"><span className="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></span><select style={{paddingLeft:37}} value={formData.businessType} onChange={e=>setFormData({...formData,businessType:e.target.value})}><option value="">Select…</option><option>Electronics</option><option>Apparel</option><option>Food &amp; Beverage</option><option>Tools &amp; Hardware</option><option>Other</option></select></div></div>
+                <div className="rf"><label>Registration No. <span className="opt">Optional</span></label><div className="iw"><span className="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><input type="text" placeholder="e.g. 12345678" value={formData.registrationNo} onChange={e=>setFormData({...formData,registrationNo:e.target.value})}/></div></div>
+                <div className="rf s2"><label>Street Address</label><div className="iw"><span className="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span><input type="text" placeholder="123 Main Street" value={formData.streetAddress} onChange={e=>setFormData({...formData,streetAddress:e.target.value})}/></div></div>
+                <div className="rf"><label>City</label><div className="iw"><input type="text" placeholder="New York" className="ni" value={formData.city} onChange={e=>setFormData({...formData,city:e.target.value})}/></div></div>
+                <div className="rf"><label>Postcode</label><div className="iw"><input type="text" placeholder="10001" className="ni" value={formData.postcode} onChange={e=>setFormData({...formData,postcode:e.target.value})}/></div></div>
               </div>
               <div className="fnav"><button type="button" className="bback" onClick={()=>setStep(1)}>← Back</button><button type="button" className="bnext" onClick={()=>setStep(3)}>Continue to Security →</button></div>
             </div>}
@@ -229,7 +279,14 @@ export default function RegisterPage() {
             {step===4&&<div>
               <div className="rp-ph"><h2>Review &amp; confirm</h2><p>Everything looks good? Submit to create your account.</p></div>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:28}}>
-                {[{key:'Account Type',val:selectedType==='store'?'Retail / Wholesale Store':'Company / Enterprise'},{key:'Email',val:'you@company.com'},{key:'Phone',val:'+1 (555) 000-0000'},{key:'Business Name',val:'Your Company Ltd.'}].map(s=>(
+                {[
+                  {key:'Account Type',val:selectedType==='store'?'Retail / Wholesale Store':'Company / Enterprise'},
+                  {key:'Email',val:formData.email || 'Not provided'},
+                  {key:'Phone',val:formData.phone || 'Not provided'},
+                  {key:'Business Name',val:formData.businessName || 'Not provided'},
+                  {key:'Business Type',val:formData.businessType || 'Not selected'},
+                  {key:'City',val:formData.city || 'Not provided'}
+                ].map(s=>(
                   <div key={s.key} style={{background:'var(--bg)',border:'1px solid var(--border)',borderRadius:9,padding:'12px 14px'}}>
                     <div style={{fontSize:'0.67rem',fontWeight:600,color:'#98b098',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:4}}>{s.key}</div>
                     <div style={{fontSize:'0.87rem',color:'var(--text)',fontWeight:500}}>{s.val}</div>

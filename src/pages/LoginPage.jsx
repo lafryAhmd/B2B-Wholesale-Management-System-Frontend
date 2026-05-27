@@ -7,12 +7,43 @@ export default function LoginPage() {
   const [loginState, setLoginState] = useState('idle') // idle | loading | done
   const [fpState, setFpState] = useState('idle') // idle | scanning | verified
 
-  function handleLogin() {
+  async function handleLogin() {
+    const email = document.getElementById('email').value
+    const password = document.getElementById('password').value
+
+    if (!email || !password) {
+      alert('Please enter email and password')
+      return
+    }
+
     setLoginState('loading')
-    setTimeout(() => {
-      setLoginState('done')
-      setTimeout(() => navigate('/dashboard'), 800)
-    }, 1500)
+
+    try {
+      const response = await fetch('/api/business/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: email, password })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setLoginState('done')
+
+        // Store user info
+        localStorage.setItem('user', JSON.stringify(data))
+
+        setTimeout(() => {
+          navigate('/dashboard')
+        }, 800)
+      } else {
+        setLoginState('idle')
+        const err = await response.json()
+        alert(err.error || 'Login failed. Please check your credentials.')
+      }
+    } catch (error) {
+      setLoginState('idle')
+      alert('Cannot connect to server. Make sure backend is running.')
+    }
   }
 
   function handleFp() {
